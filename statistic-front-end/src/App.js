@@ -1,30 +1,41 @@
 import axios from 'axios';
 import * as heatmap from 'heatmap.js';
 import React, { useEffect } from 'react';
-import logo from './logo.svg';
-import './App.css';
 
 const STATISTIC_END_POINT = 'http://localhost:7777/statistic';
 
 const initHeatMap = async () => {
   const respone = await axios.get(STATISTIC_END_POINT, {
-    params: { hostname: 'localhost' }
+    params: { hostname: 'localhost' },
   });
 
-  console.log(respone);
-  const data = respone.data.map(row => ({ x: row.x, y: row.y, value: 100 }));
+  console.log(respone.data);
+
+  const {
+    offsetWidth: newWidth,
+    offsetHeight: newHeight,
+  } = document.querySelector('#img');
+
+  const { width, height } = respone.data;
+  const data = respone.data.coordinates.map(({ x, y }) => ({
+    x: Math.floor((x / width) * newWidth),
+    y: Math.floor((y / height) * newHeight),
+    value: 100,
+  }));
+
+  console.log(data);
 
   const instance = heatmap.create({
-    container: document.getElementById('heatmapContainer'),
+    container: document.getElementById('heatmap'),
     radius: 10,
     maxOpacity: 0.5,
     minOpacity: 0,
-    blur: 0.75
+    blur: 0.75,
   });
 
   instance.setData({
-    max: 5,
-    data
+    max: 10,
+    data,
   });
 };
 
@@ -34,21 +45,13 @@ function App() {
   }, []);
 
   return (
-    <div className="App" id="heatmapContainer">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="App" id="heatmap">
+      <img
+        id="img"
+        width="1200"
+        alt="good"
+        src="http://localhost:7777/dom-img"
+      ></img>
     </div>
   );
 }
