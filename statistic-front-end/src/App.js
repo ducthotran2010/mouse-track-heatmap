@@ -5,16 +5,17 @@ import React, { useEffect } from 'react';
 const STATISTIC_END_POINT = 'http://localhost:7777/statistic';
 
 const initHeatMap = async () => {
-  const respone = await axios.get(STATISTIC_END_POINT, {
+  const query = window.location.search.slice('?query='.length);
+  const respone = await axios.get(`${STATISTIC_END_POINT}-${query}`, {
     params: { hostname: 'localhost' },
   });
-
-  console.log(respone.data);
 
   const {
     offsetWidth: newWidth,
     offsetHeight: newHeight,
   } = document.querySelector('#img');
+
+  console.log(respone.data.coordinates);
 
   const { width, height } = respone.data;
   const data = respone.data.coordinates.map(({ x, y }) => ({

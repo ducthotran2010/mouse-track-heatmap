@@ -1,9 +1,8 @@
 import fs from 'fs';
-import constants from './constants';
 
-export const readDB = async () =>
+export const readDB = async TABLE =>
   new Promise((resolve, reject) =>
-    fs.readFile(constants.DB_PATH, (error, data) => {
+    fs.readFile(TABLE, (error, data) => {
       if (error) {
         return reject(error);
       }
@@ -17,9 +16,9 @@ export const readDB = async () =>
     }),
   );
 
-export const saveDB = async db =>
+export const saveDB = async (data, TABLE) =>
   new Promise((resolve, reject) =>
-    fs.writeFile(constants.DB_PATH, db, error => {
+    fs.writeFile(TABLE, JSON.stringify(data), error => {
       if (error) {
         console.log({ error: JSON.stringify(error) });
         return reject(error);

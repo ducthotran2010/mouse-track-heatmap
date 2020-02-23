@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body style="margin-top: 100px">
+    <div style="border: red 1px solid; width: 500px; height: 500px;">
+      <div
+        style="width: 250px; margin: 116px auto 0;
+      width: 300px;
+      text-align: center;"
+      >
+        <a style="margin: 10px;cursor: pointer;" id="link">aaaaaaaaaa</a>
+        <a style="margin: 10px;">bbbbbbbbbbbbbbb</a>
+      </div>
+    </div>
+    <script>
+      function getDocumentOffsetPosition(el) {
+        const position = {
+          top: el.offsetTop,
+          left: el.offsetLeft,
+        };
+        if (el.offsetParent) {
+          const parentPosition = getDocumentOffsetPosition(el.offsetParent);
+          position.top += parentPosition.top;
+          position.left += parentPosition.left;
+        }
+        return position;
+      }
+      document.addEventListener('mouseout', event => {
+        const { target } = event;
+        const { top, left } = getDocumentOffsetPosition(target);
+        console.log({ top, left });
+
+        const div = document.createElement('div');
+        div.setAttribute(
+          'style',
+          `
+          position: absolute;
+          background: red;
+          top: ${top}px;
+          left: ${left}px;
+          width: 10px;
+          height: 10px;
+        `,
+        );
+        document.body.appendChild(div);
+      });
+
+      document.addEventListener('mouseout', event => {
+        const { layerX, layerY } = event;
+        const top = layerY;
+        const left = layerX;
+        const div = document.createElement('div');
+        div.setAttribute(
+          'style',
+          `
+          position: absolute;
+          background: blue;
+          top: ${top}px;
+          left: ${left}px;
+          width: 10px;
+          z-index: 10000;
+          height: 10px;
+        `,
+        );
+        document.body.appendChild(div);
+      });
+    </script>
+  </body>
+</html>

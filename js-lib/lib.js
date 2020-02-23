@@ -2,6 +2,7 @@ const xhttp = new XMLHttpRequest();
 const hostname = document.location.hostname;
 const END_POINT_SERVICE = 'http://localhost:7777/';
 const END_POINT_SAVE_DOM = 'http://localhost:7777/dom';
+const { x: deltaX, y: deltaY } = document.body.getClientRects()[0];
 
 function getUniqueSelector(node) {
   let selector = '';
@@ -33,25 +34,77 @@ function getDocumentOffsetPosition(el) {
   return position;
 }
 
+// document.addEventListener('mousemove', event => {
+//   const { pageX: left, pageY: top } = event;
+//   console.log({ top, left });
+//   const div = document.createElement('div');
+//   div.setAttribute(
+//     'style',
+//     `
+//     position: absolute;
+//     background: blue;
+//     top: ${top}px;
+//     left: ${left}px;
+//     width: 10px;
+//     z-index: 100000000;
+//     height: 10px;
+//   `,
+//   );
+//   document.body.appendChild(div);
+// });
+
 function handleMouseClick(event) {
-  const { offsetWidth: width, offsetHeight: height } = event.target;
-
-  let { offsetX, offsetY } = event;
-  const { top, left } = getDocumentOffsetPosition(event.target);
-  const documentX = left + offsetX;
-  const documentY = top + offsetY;
-
   const { pageX, pageY } = event;
-  console.log({ pageX, pageY, documentX, documentY });
-  const deltaX = documentX - pageX;
-  const deltaY = documentY - pageY;
-  offsetY -= deltaY;
-  offsetX -= deltaX;
+  const { offsetWidth: width, offsetHeight: height } = event.target;
+  const { top: topTarget, left: leftTarget } = getDocumentOffsetPosition(
+    event.target,
+  );
+
+  const offsetX = pageX - leftTarget;
+  const offsetY = pageY - topTarget;
+  // offsetX += deltaX;
+  // offsetY += deltaY;
+  // const documentX = left + offsetX;
+  // const documentY = top + offsetY;
+
+  // const { pageX, pageY } = event;
+  // console.log({ pageX, pageY, offsetX, offsetY, left, top });
+  // const deltaX = documentX - pageX;
+  // const deltaY = documentY - pageY;
 
   const selector = getUniqueSelector(event.target);
 
   try {
-    xhttp.open('POST', END_POINT_SERVICE);
+    xhttp.open('POST', `${END_POINT_SERVICE}click`);
+    xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+    xhttp.send(
+      JSON.stringify({
+        hostname,
+        selector,
+        width,
+        height,
+        offsetX,
+        offsetY,
+      }),
+    );
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+function handleMouseMove(event) {
+  const { pageX, pageY } = event;
+  const { offsetWidth: width, offsetHeight: height } = event.target;
+  const { top: topTarget, left: leftTarget } = getDocumentOffsetPosition(
+    event.target,
+  );
+
+  const offsetX = pageX - leftTarget;
+  const offsetY = pageY - topTarget;
+  const selector = getUniqueSelector(event.target);
+
+  try {
+    xhttp.open('POST', `${END_POINT_SERVICE}hover`);
     xhttp.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
     xhttp.send(
       JSON.stringify({
@@ -68,6 +121,7 @@ function handleMouseClick(event) {
   }
 }
 document.addEventListener('click', handleMouseClick);
+document.addEventListener('mousemove', handleMouseMove);
 
 function getParameterByName(name) {
   const match = RegExp(`[?&]${name}=[^&]*`).exec(window.location.search);
